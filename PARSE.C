@@ -75,31 +75,69 @@ TreeNode * statement(void)
 
 TreeNode * if_stmt(void)
 {          
-   ……          /* 此处请填写完整 */
+  TreeNode * t = newStmtNode(IfK);
+  match(IF);
+  if (t!=NULL) {
+    t->child[0] = exp();
+    match(THEN);
+    t->child[1] = stmt_sequence();
+    if (token==ELSE) {
+      match(ELSE);
+      t->child[2] = stmt_sequence();
+    }
+    match(END);
+  }
+  return t;
 }
 
 TreeNode * repeat_stmt(void)
 {
-   ……          /* 此处请填写完整 */
+  TreeNode * t = newStmtNode(RepeatK);
+  match(REPEAT);
+  if (t!=NULL) {
+    t->child[0] = stmt_sequence();
+    match(UNTIL);
+    t->child[1] = exp();
+  }
+  return t;
 }
 
 TreeNode * assign_stmt(void)
 { 
-   ……          /* 此处请填写完整 */
+  TreeNode * t = newStmtNode(AssignK);
+  if ((t!=NULL) && (token==ID)) {
+    t->attr.name = copyString(tokenString);
+    match(ID);
+    match(ASSIGN);
+    t->child[0] = exp();
+  }
+  return t;
 }
 
 TreeNode * read_stmt(void)
 {
-   ……          /* 此处请填写完整 */
+  TreeNode * t = newStmtNode(ReadK);
+  match(READ);
+  if (t!=NULL) {
+    t->attr.name = copyString(tokenString);
+    match(ID);
+  }
+  return t;
 }
 
 TreeNode * write_stmt(void)
 {
-   ……          /* 此处请填写完整 */
+  TreeNode * t = newStmtNode(WriteK);
+  match(WRITE);
+  if (t!=NULL) {
+    t->child[0] = exp();
+  }
+  return t;
 }
 
 TreeNode * exp(void)
-{ TreeNode * t = simple_exp();
+{ 
+  TreeNode * t = simple_exp();
   if ((token==LT)||(token==EQ)) {
     TreeNode * p = newExpNode(OpK);
     if (p!=NULL) {
@@ -116,17 +154,64 @@ TreeNode * exp(void)
 
 TreeNode * simple_exp(void)
 {
-   ……          /* 此处请填写完整 */
+  TreeNode * t = term();
+  while ((token==PLUS)||(token==MINUS)) {
+    TreeNode * p = newExpNode(OpK);
+    if (p!=NULL) {
+      p->child[0] = t;
+      p->attr.op = token;
+      t = p;
+      match(token);
+      p->child[1] = term();
+    }
+  }
+  return t;
 }
 
 TreeNode * term(void)
 {
-   ……          /* 此处请填写完整 */
+  TreeNode * t = factor();
+  while ((token==TIMES)||(token==OVER)) {
+    TreeNode * p = newExpNode(OpK);
+    if (p!=NULL) {
+      p->child[0] = t;
+      p->attr.op = token;
+      t = p;
+      match(token);
+      p->child[1] = factor();
+    }
+  }
+  return t;
 }
 
 TreeNode * factor(void)
 {
-   ……          /* 此处请填写完整 */
+  TreeNode * t = NULL;
+  switch (token) {
+    case NUM:
+      t = newExpNode(ConstK);
+      if (t!=NULL)
+        t->attr.val = atoi(tokenString);
+      match(NUM);
+      break;
+    case ID:
+      t = newExpNode(IdK);
+      if (t!=NULL)
+        t->attr.name = copyString(tokenString);
+      match(ID);
+      break;
+    case LPAREN:
+      match(LPAREN);
+      t = simple_exp();
+      match(RPAREN);
+      break;
+    default:
+      syntaxError("unexpected token -> ");
+      printToken(token,tokenString);
+      token = getToken();
+      break;
+  }
+  return t;
 }
 
 /****************************************/

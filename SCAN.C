@@ -51,7 +51,7 @@ static void ungetNextChar(void)
 
 /* lookup table of reserved words */
 static struct
-    { char* str;
+    { const char* str;
       TokenType tok;
     } reservedWords[MAXRESERVED]
    = {{"if",IF},{"then",THEN},{"else",ELSE},{"end",END},
@@ -76,59 +76,128 @@ static TokenType reservedLookup (char * s)
  */
 TokenType getToken(void)
 {  /* index for storing into tokenString */
-   int tokenStringIndex = 0;
+  int tokenStringIndex = 0;
    /* holds current token to be returned */
-   TokenType currentToken;
+  TokenType currentToken;
    /* current state - always begins at START */
-   StateType state = START;
+  StateType state = START;
    /* flag to indicate save to tokenString */
-   int save;
-   while (state != DONE)
-   { int c = getNextChar();
-     save = TRUE;
-     switch (state)
-     { case START:
-         if (isdigit(c))
-           state = INNUM;
-         else ……          /* 此处请填写完整 */
-         break;
-       case INCOMMENT:
-         ……          /* 此处请填写完整 */
-         break;
-       case INASSIGN:
-         ……          /* 此处请填写完整 */
-         break;
-       case INNUM:
-         if (!isdigit(c))
-         { /* backup in the input */
-           ungetNextChar();
-           save = FALSE;
-           state = DONE;
-           currentToken = NUM;
-         }
-         break;
-       case INID:
-         ……          /* 此处请填写完整 */
-         break;
-       case DONE:
-       default: /* should never happen */
-         fprintf(listing,"Scanner Bug: state= %d\n",state);
-         state = DONE;
-         currentToken = ERROR;
-         break;
-     }
-     if ((save) && (tokenStringIndex <= MAXTOKENLEN))
-       tokenString[tokenStringIndex++] = (char) c;
-     if (state == DONE)
-     { tokenString[tokenStringIndex] = '\0';
-       if (currentToken == ID)
-         currentToken = reservedLookup(tokenString);
-     }
-   }
-   if (TraceScan) {
-     fprintf(listing,"\t%d: ",lineno);
-     printToken(currentToken,tokenString);
-   }
-   return currentToken;
+  int save;
+  while (state != DONE) { 
+    int c = getNextChar();
+    save = TRUE;
+    switch (state) { 
+      case START:
+        if (isdigit(c))
+          state = INNUM;
+        else if (isalpha(c))
+          state = INID;
+        else if ((c == ' ') || (c == '\t') || (c == '\n'))
+          save = FALSE; 
+        else if (c == ':')
+          state = INASSIGN;
+        else if (c == '{') {
+          save = FALSE;
+          state = INCOMMENT;
+        }
+        else if (c == '}') {
+          save = FALSE;
+          state = START;
+        }
+        else { 
+          state = DONE;
+          switch (c) { 
+            case EOF:
+              save = FALSE;
+              currentToken = ENDFILE;
+              break;
+            case '=':
+              currentToken = EQ;
+              break;
+            case '<':
+              currentToken = LT;
+              break;
+            case '+':
+              currentToken = PLUS;
+              break;
+            case '-':
+              currentToken = MINUS;
+              break;
+            case '*':
+              currentToken = TIMES;
+              break;
+            case '/':
+              currentToken = OVER;
+              break;
+            case '(':
+              currentToken = LPAREN;
+              break;
+            case ')':
+              currentToken = RPAREN;
+              break;
+            case ';':
+              currentToken = SEMI;
+              break;
+            default:
+              currentToken = ERROR;
+              break;
+          }
+        }
+        break;
+      case INCOMMENT:
+        save = FALSE;
+        if (c == EOF) { 
+          state = DONE;
+          currentToken = ENDFILE;
+        }
+        else if (c == '}') 
+          state = START;
+        break;
+      case INASSIGN:
+        state = DONE;
+        if (c == '=')
+          currentToken = ASSIGN;
+        else {
+          ungetNextChar();
+          save = FALSE;
+          currentToken = ERROR;
+        }
+        break;
+      case INNUM:
+        if (!isdigit(c)) {
+          ungetNextChar();
+          save = FALSE;
+          state = DONE;
+          currentToken = NUM;
+        }
+        break;
+      case INID:
+        if (!isalpha(c)) {
+          ungetNextChar();
+          save = FALSE;
+          state = DONE;
+          currentToken = ID;
+        }
+        break;
+      case DONE:
+      default: /* should never happen */
+        fprintf(listing,"Scanner Bug: state= %d\n",state);
+        state = DONE;
+        currentToken = ERROR;
+        break;
+    }
+    if ((save) && (tokenStringIndex <= MAXTOKENLEN))
+      tokenString[tokenStringIndex++] = (char) c;
+    if (state == DONE) { 
+      tokenString[tokenStringIndex] = '\0';
+      if (currentToken == ID)
+        currentToken = reservedLookup(tokenString);
+    }
+  }
+  if (TraceScan) {
+    fprintf(listing,"\t%d: ",lineno);
+    printToken(currentToken,tokenString);
+  }
+  return currentToken;
 } /* end getToken */
 
