@@ -4,7 +4,10 @@
     "UTIL.C": "cpp",
     "MAIN.C": "cpp",
     "PARSE.C": "cpp",
-    "SCAN.C": "cpp"
+    "SCAN.C": "cpp",
+    "ANALYZE.C": "cpp",
+    "SYMTAB.C": "cpp",
+    "TM.C": "cpp"
   },
   "C_Cpp_Runner.cCompilerPath": "gcc",
   "C_Cpp_Runner.cppCompilerPath": "g++",

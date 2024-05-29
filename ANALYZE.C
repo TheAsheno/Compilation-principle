@@ -102,8 +102,8 @@ static void typeError(TreeNode * t, char * message)
  */
 static void checkNode(TreeNode * t)
 { switch (t->nodekind)
-  { case ExpK:    ……          /* 此处请填写完整 */
-    case StmtK:   ……          /* 此处请填写完整 */    
+  { case ExpK:    
+    case StmtK:   
   }
 }
 

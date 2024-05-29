@@ -60,9 +60,7 @@ static BucketList hashTable[SIZE];
  */
 void st_insert( char * name, int lineno, int loc )
 { 
-  /* 请完成符号表条目插入子程序。
-     先找，找不到说明定义了一个新名字，则插入新条目，默认插在其对应哈希表项的表头；
-     找到说明仅对名字进行引用，则将行号加入到该名字的行链中  */
+
   
 } /* st_insert */
 
