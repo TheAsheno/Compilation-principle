@@ -7,7 +7,9 @@
     "SCAN.C": "cpp",
     "ANALYZE.C": "cpp",
     "SYMTAB.C": "cpp",
-    "TM.C": "cpp"
+    "TM.C": "cpp",
+    "CGEN.C": "cpp",
+    "CODE.C": "cpp"
   },
   "C_Cpp_Runner.cCompilerPath": "gcc",
   "C_Cpp_Runner.cppCompilerPath": "g++",

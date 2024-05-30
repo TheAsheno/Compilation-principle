@@ -13,6 +13,10 @@
                 "util.c",
                 "scan.c",
                 "parse.c",
+                "analyze.c",
+                "symtab.c",
+                "cgen.c",
+                "code.c",
                 "-o",
                 "MAIN.exe",
                 "-fno-builtin"

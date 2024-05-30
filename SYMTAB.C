@@ -60,8 +60,26 @@ static BucketList hashTable[SIZE];
  */
 void st_insert( char * name, int lineno, int loc )
 { 
-
-  
+  int h = hash(name);
+  BucketList l =  hashTable[h];
+  while ((l != NULL) && (strcmp(name,l->name) != 0))
+    l = l->next;
+  if (l == NULL)
+  { l = (BucketList) malloc(sizeof(struct BucketListRec));
+    l->name = name;
+    l->lines = (LineList) malloc(sizeof(struct LineListRec));
+    l->lines->lineno = lineno;
+    l->memloc = loc;
+    l->lines->next = NULL;
+    l->next = hashTable[h];
+    hashTable[h] = l; }
+  else
+  { LineList t = l->lines;
+    while (t->next != NULL) t = t->next;
+    t->next = (LineList) malloc(sizeof(struct LineListRec));
+    t->next->lineno = lineno;
+    t->next->next = NULL;
+  }
 } /* st_insert */
 
 /* Function st_lookup returns the memory 
